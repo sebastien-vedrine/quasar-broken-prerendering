@@ -15,12 +15,15 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 
 const { configure } = require('quasar/wrappers');
 
+const path = require('path');
+const PrerenderSPAPlugin = require('prerender-spa-plugin-next');
+
 module.exports = configure((ctx) => ({
   // https://v2.quasar.dev/quasar-cli-webpack/supporting-ts
   supportTS: false,
 
   // https://v2.quasar.dev/quasar-cli-webpack/prefetch-feature
-  // preFetch: true,
+  preFetch: true,
 
   // app boot file (/src/boot)
   // --> boot files are part of "main.js"
@@ -78,6 +81,25 @@ module.exports = configure((ctx) => ({
         .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }]);
     },
 
+    extendWebpack(cfg) {
+      if (ctx.prod) {
+        cfg.plugins.push(
+          new PrerenderSPAPlugin({
+            staticDir: path.join(__dirname, 'dist/spa'),
+            routes: ['/'],
+            postProcess(context) {
+              context.html = context.html.replace('id="q-app"', 'id="q-app" data-server-rendered="true"');
+              return context;
+            },
+            renderer: require('@prerenderer/renderer-puppeteer'),
+            rendererOptions: {
+              renderAfterDocumentEvent: 'render-event',
+              timeout: 20000,
+            },
+          }),
+        );
+      }
+    },
   },
 
   // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-devServer
@@ -86,7 +108,7 @@ module.exports = configure((ctx) => ({
       type: 'http',
     },
     port: 8080,
-    open: true, // opens browser window automatically
+    open: false, // opens browser window automatically
   },
 
   // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-framework

@@ -1,22 +1,24 @@
-# Prerendering not working when using styled components 
+# Page flashes when using prerender
+
+- Page loads with prerendered data
+- Component data reset
+- API calls update the data
+
+## Expected behavior
+
+- Page loads with prerendered data, nothing more
 
 ## Installation
 ```bash
 yarn install
 ```
 
-## Start the app (build with prerendering)
+## Build the app
 ```bash
-yarn prerender
+quasar build
 ```
-
-The above command will build the project (quasar build) and prerender its content (start a node server using [prerender-plugin](https://github.com/mubaidr/prerender-plugin)).
 
 ## Steps to reproduce
 
-- Run the prerender command above (`yarn prerender`) to build the project
-- Prerendering works as expected (open the source code of the page, you will find content inside the div with id "q-app")
-- Head to `src/pages/IndexPage.vue`
-- Uncomment the style tag at the bottom of the file
-- Run the prerender command again (`yarn prerender`)
-- Prerendering doesn't work (open the source code of the page, there is nothing inside the div with id "q-app")
+- Build the project using `quasar build`
+- Copy dist/spa files into the public folder
